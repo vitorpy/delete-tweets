@@ -5,6 +5,8 @@ import os
 import sys
 
 from deletetweets import deletetweets
+from deletetweets import removefollows
+from dotenv import load_dotenv, find_dotenv
 
 __author__ = "Koen Rouwhorst"
 __version__ = "1.0.6"
@@ -25,6 +27,7 @@ def main():
     parser.add_argument("--spare-min-retweets", dest="min_retweets",
                         help="Spare tweets with more than the provided retweets", type=int, default=0)
     parser.add_argument("--dry-run", dest="dry_run", action="store_true", default=False)
+    parser.add_argument("--vitor", dest="vitor", action="store_true", default=False)
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
     # legacy options
@@ -33,6 +36,8 @@ def main():
 
     args = parser.parse_args()
 
+    load_dotenv(dotenv_path=find_dotenv(), override=True)
+
     if not ("TWITTER_CONSUMER_KEY" in os.environ and
             "TWITTER_CONSUMER_SECRET" in os.environ and
             "TWITTER_ACCESS_TOKEN" in os.environ and
@@ -40,20 +45,22 @@ def main():
         sys.stderr.write("Twitter API credentials not set.\n")
         exit(1)
 
-    filters = []
+    if not args.vitor:
+        filters = []
 
-    if args.restrict == "reply":
-        filters.append("replies")
-    elif args.restrict == "retweet":
-        filters.append("retweets")
+        if args.restrict == "reply":
+            filters.append("replies")
+        elif args.restrict == "retweet":
+            filters.append("retweets")
 
-    for f in args.filters:
-        if f not in filters:
-            filters.append(f)
+        for f in args.filters:
+            if f not in filters:
+                filters.append(f)
 
-    deletetweets.delete(args.file, args.since_date, args.until_date, filters, args.spare_ids,
-                        args.min_likes, args.min_retweets, args.dry_run)
-
+        deletetweets.delete(args.file, args.since_date, args.until_date, filters, args.spare_ids,
+                            args.min_likes, args.min_retweets, args.dry_run)
+    else:
+        removefollows.delete(args.dry_run)
 
 if __name__ == "__main__":
     main()
