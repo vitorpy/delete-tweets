@@ -28,6 +28,7 @@ def main():
                         help="Spare tweets with more than the provided retweets", type=int, default=0)
     parser.add_argument("--dry-run", dest="dry_run", action="store_true", default=False)
     parser.add_argument("--vitor", dest="vitor", action="store_true", default=False)
+    parser.add_argument("--all", dest="all", action="store_true", default=False)
     parser.add_argument('--version', action='version', version='%(prog)s ' + __version__)
 
     # legacy options
@@ -60,7 +61,7 @@ def main():
         deletetweets.delete(args.file, args.since_date, args.until_date, filters, args.spare_ids,
                             args.min_likes, args.min_retweets, args.dry_run)
     else:
-        removefollows.delete(args.dry_run)
+        removefollows.delete(args.all, args.dry_run)
 
 if __name__ == "__main__":
     main()
